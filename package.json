@@ -1,0 +1,28 @@
+{
+  "name": "cse340",
+  "version": "1.0.0",
+  "description": "byu repository 2026 term",
+  "homepage": "https://github.com/frankjvip/CSE340#readme",
+  "bugs": {
+    "url": "https://github.com/frankjvip/CSE340/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/frankjvip/CSE340.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+  "dev": "nodemon",
+  "start": "node server.js"
+  },
+  "dependencies": {
+    "ejs": "^6.0.1",
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
