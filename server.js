@@ -2,6 +2,8 @@ import express from 'express';
 import { fileURLToPath } from 'url';
 import path from 'path';
 import { testConnection } from './src/models/db.js';
+import { getAllOrganizations } from './src/models/organizations.js';
+import { getAllCategories } from './src/models/categories.js';
 
 // Define the application environment
 const NODE_ENV = process.env.NODE_ENV?.toLowerCase() || "production";
@@ -36,8 +38,10 @@ app.get('/', async (req, res) => {
 });
 
 app.get('/organizations', async (req, res) => {
+    const organizations = await getAllOrganizations();
     const title = 'Our Partner Organizations';
-    res.render('organizations', { title });
+
+    res.render('organizations', { title, organizations });
 });
 
 app.get('/projects', async (req, res) => {
@@ -46,9 +50,17 @@ app.get('/projects', async (req, res) => {
 });
 
 // New Categories route
-app.get("/categories", (req, res) => {
-  res.render("categories", { title: "Categories" });
+app.get("/categories", async (req, res) => {
+  try {
+    const categories = await getAllCategories(); // fetch from DB
+    const title = "Categories";
+    res.render("categories", { title, categories }); // pass data to EJS
+  } catch (error) {
+    console.error("Error retrieving categories:", error);
+    res.status(500).send("Server Error");
+  }
 });
+
 
 app.listen(PORT, async () => {
   try {
