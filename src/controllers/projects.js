@@ -1,13 +1,33 @@
-// Import any needed model functions
-import { getAllProjects } from '../models/projects.js';
+import { getUpcomingProjects, getProjectDetails } from '../models/projects.js';
 
-// Define any controller functions
+const NUMBER_OF_UPCOMING_PROJECTS = 5;
+
+// Página principal de proyectos (solo próximos 5)
 const showProjectsPage = async (req, res) => {
-    const projects = await getAllProjects();
-    const title = 'Service Projects';
+  try {
+    const projects = await getUpcomingProjects(NUMBER_OF_UPCOMING_PROJECTS);
+    res.render('projects', { title: 'Upcoming Service Projects', projects });
+  } catch (error) {
+    console.error('Error occurred:', error.message);
+    res.status(500).send('Internal Server Error');
+  }
+};
 
-    res.render('projects', { title, projects });
-};  
+// Página de detalles de un proyecto
+const showProjectDetailsPage = async (req, res) => {
+  try {
+    const projectId = req.params.id;
+    const project = await getProjectDetails(projectId);
 
-// Export any controller functions
-export { showProjectsPage };
+    if (!project) {
+      return res.status(404).send('Project not found');
+    }
+
+    res.render('project', { title: 'Service Project Details', project });
+  } catch (error) {
+    console.error('Error occurred:', error.message);
+    res.status(500).send('Internal Server Error');
+  }
+};
+
+export { showProjectsPage, showProjectDetailsPage };
