@@ -1,9 +1,8 @@
-const db = require('./db'); // conection to the database
+import db from './db.js';
 
-async function getAllCategories() {
+export async function getAllCategories() {
   const query = 'SELECT * FROM categories ORDER BY name';
   const result = await db.query(query);
   return result.rows;
 }
 
-module.exports = { getAllCategories };
