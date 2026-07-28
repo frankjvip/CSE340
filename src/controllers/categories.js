@@ -1,4 +1,3 @@
-// Import needed model functions
 import { 
   getAllCategories, 
   getCategoryById, 
@@ -36,5 +35,4 @@ const showCategoryDetailsPage = async (req, res) => {
   }
 };
 
-// Export controller functions
 export { showCategoriesPage, showCategoryDetailsPage };

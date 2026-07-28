@@ -44,20 +44,19 @@ const getProjectDetails = async (id) => {
 const getProjectsByOrganizationId = async (organizationId) => {
   const query = `
     SELECT
-      project_id,
-      organization_id,
-      title,
-      description,
-      project_location,
-      project_date
-    FROM project
-    WHERE organization_id = $1
-    ORDER BY project_date;
+      p.project_id,
+      p.organization_id,
+      p.title,
+      p.description,
+      p.project_location,
+      p.project_date
+    FROM project p
+    WHERE p.organization_id = $1
+    ORDER BY p.project_date ASC;
   `;
   
   const { rows } = await pool.query(query, [organizationId]);
   return rows;
 };
 
-// Exportar todas las funciones necesarias
 export { getUpcomingProjects, getProjectDetails, getProjectsByOrganizationId };
