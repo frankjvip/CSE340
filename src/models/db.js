@@ -1,14 +1,15 @@
-import { Pool } from 'pg';
+import pg from 'pg';
+const { Pool } = pg;
 
 const connectionString = process.env.DATABASE_URL;
 
-// Render requiere SSL ÚNICAMENTE si te conectas mediante la URL Externa (.render.com).
-// Las conexiones por URL Interna dentro de la red privada de Render NO usan SSL.
-const useSSL = connectionString && connectionString.includes('render.com');
+// La URL Externa (.render.com) REQUIERE SSL.
+// La URL Interna (dpg-xxx sin dominio) FALLA si se envía SSL.
+const requiresSSL = connectionString && connectionString.includes('render.com');
 
 const pool = new Pool({
     connectionString: connectionString,
-    ssl: useSSL ? { rejectUnauthorized: false } : false
+    ssl: requiresSSL ? { rejectUnauthorized: false } : false
 });
 
 let db = pool;
