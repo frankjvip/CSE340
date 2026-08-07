@@ -1,13 +1,16 @@
 import pg from 'pg';
 const { Pool } = pg;
 
-const connectionString = process.env.DATABASE_URL;
+const connectionString = process.env.DATABASE_URL || '';
+
+// En Render:
+// - URL Externa (contiene '.render.com'): Requiere SSL.
+// - URL Interna ('dpg-xxx') o Local: NO soporta SSL (falla si se envía SSL).
+const isExternalHost = connectionString.includes('render.com');
 
 const pool = new Pool({
     connectionString: connectionString,
-    ssl: {
-        rejectUnauthorized: false
-    }
+    ssl: isExternalHost ? { rejectUnauthorized: false } : false
 });
 
 let db = pool;
