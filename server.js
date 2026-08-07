@@ -8,7 +8,8 @@ import router from './src/routes.js';
 
 const NODE_ENV = process.env.NODE_ENV?.toLowerCase() || 'production';
 const PORT = process.env.PORT || 3000;
-const SESSION_SECRET = process.env.SESSION_SECRET;
+// Si process.env.SESSION_SECRET es undefined, usará la clave por defecto
+const SESSION_SECRET = process.env.SESSION_SECRET || 'secret_key_fallback_12345';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
