@@ -1,15 +1,15 @@
 import { Pool } from 'pg';
-import pg from 'pg';
 
-// Use DATABASE_URL (Render's variable), not DB_URL
+const connectionString = process.env.DATABASE_URL;
+
+// Habilita SSL en entorno de producción o cuando la URL apunta a Render
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: {
-        rejectUnauthorized: false
-    }
+    connectionString: connectionString,
+    ssl: connectionString && connectionString.includes('render.com') 
+        ? { rejectUnauthorized: false } 
+        : (process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false)
 });
 
-// Export pool directly
 let db = pool;
 
 // Test connection
