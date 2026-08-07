@@ -16,13 +16,18 @@
         </ul>
     </nav>
 
-    <% const messages = flash(); %>
-    <% Object.keys(messages).forEach(type => { %>
-        <% if (messages[type].length > 0) { %>
-            <div class="alert <%= type %>">
-                <% messages[type].forEach(msg => { %>
-                    <p><%= msg %></p>
-                <% }); %>
-            </div>
-        <% } %>
-    <% }); %>
+    <% 
+        const getFlashMessages = typeof flash === 'function' ? flash : (typeof locals.flash === 'function' ? locals.flash : () => ({}));
+        const messages = getFlashMessages(); 
+    %>
+    <% if (messages && Object.keys(messages).length > 0) { %>
+        <% Object.keys(messages).forEach(type => { %>
+            <% if (messages[type] && messages[type].length > 0) { %>
+                <div class="alert <%= type %>">
+                    <% messages[type].forEach(msg => { %>
+                        <p><%= msg %></p>
+                    <% }); %>
+                </div>
+            <% } %>
+        <% }); %>
+    <% } %>
