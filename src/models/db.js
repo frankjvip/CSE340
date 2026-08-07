@@ -3,13 +3,11 @@ const { Pool } = pg;
 
 const connectionString = process.env.DATABASE_URL;
 
-// La URL Externa (.render.com) REQUIERE SSL.
-// La URL Interna (dpg-xxx sin dominio) FALLA si se envía SSL.
-const requiresSSL = connectionString && connectionString.includes('render.com');
-
 const pool = new Pool({
     connectionString: connectionString,
-    ssl: requiresSSL ? { rejectUnauthorized: false } : false
+    ssl: {
+        rejectUnauthorized: false
+    }
 });
 
 let db = pool;
