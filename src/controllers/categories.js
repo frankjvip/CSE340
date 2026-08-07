@@ -1,11 +1,27 @@
+import { body, validationResult } from 'express-validator';
 import { 
   getAllCategories, 
   getCategoryById, 
   getProjectsByCategoryId,
   getCategoriesByProjectId,
-  updateCategoryAssignments
+  updateCategoryAssignments,
+  createCategory,
+  updateCategory
 } from '../models/categories.js';
 import { getProjectDetails } from '../models/projects.js';
+
+// Server-side validation rules for categories
+// Note: Min length is 3 characters (server-side only to satisfy testing requirements)
+const categoryValidation = [
+  body('name')
+    .trim()
+    .notEmpty()
+    .withMessage('Category name is required.')
+    .isLength({ min: 3 })
+    .withMessage('Category name must be at least 3 characters long.')
+    .isLength({ max: 100 })
+    .withMessage('Category name cannot exceed 100 characters.')
+];
 
 // Controller: show all categories
 const showCategoriesPage = async (req, res) => {
@@ -68,7 +84,6 @@ const showAssignCategoriesForm = async (req, res) => {
 const processAssignCategoriesForm = async (req, res) => {
   try {
     const projectId = req.params.projectId;
-    // req.body.categoryIds can be undefined, a single string, or an array of strings
     const categoryIds = req.body.categoryIds || [];
 
     await updateCategoryAssignments(projectId, categoryIds);
@@ -82,9 +97,91 @@ const processAssignCategoriesForm = async (req, res) => {
   }
 };
 
+// Controller: render form to create new category
+const showNewCategoryForm = (req, res) => {
+  res.render('new-category', {
+    title: 'Add New Category',
+    errors: null,
+    name: ''
+  });
+};
+
+// Controller: process creation of new category
+const processNewCategoryForm = async (req, res) => {
+  const errors = validationResult(req);
+  const { name } = req.body;
+
+  if (!errors.isEmpty()) {
+    return res.status(400).render('new-category', {
+      title: 'Add New Category',
+      errors: errors.array(),
+      name
+    });
+  }
+
+  try {
+    await createCategory(name);
+    req.flash('info', 'Category created successfully.');
+    res.redirect('/categories');
+  } catch (error) {
+    console.error(error);
+    res.status(500).render('500');
+  }
+};
+
+// Controller: render form to edit category
+const showEditCategoryForm = async (req, res) => {
+  try {
+    const categoryId = req.params.id;
+    const category = await getCategoryById(categoryId);
+
+    if (!category) {
+      return res.status(404).render('404');
+    }
+
+    res.render('edit-category', {
+      title: 'Edit Category',
+      errors: null,
+      category
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).render('500');
+  }
+};
+
+// Controller: process updating an existing category
+const processEditCategoryForm = async (req, res) => {
+  const errors = validationResult(req);
+  const categoryId = req.params.id;
+  const { name } = req.body;
+
+  if (!errors.isEmpty()) {
+    return res.status(400).render('edit-category', {
+      title: 'Edit Category',
+      errors: errors.array(),
+      category: { category_id: categoryId, name }
+    });
+  }
+
+  try {
+    await updateCategory(categoryId, name);
+    req.flash('info', 'Category updated successfully.');
+    res.redirect('/categories');
+  } catch (error) {
+    console.error(error);
+    res.status(500).render('500');
+  }
+};
+
 export { 
   showCategoriesPage, 
   showCategoryDetailsPage,
   showAssignCategoriesForm,
-  processAssignCategoriesForm
+  processAssignCategoriesForm,
+  showNewCategoryForm,
+  processNewCategoryForm,
+  showEditCategoryForm,
+  processEditCategoryForm,
+  categoryValidation
 };
