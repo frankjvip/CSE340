@@ -59,4 +59,66 @@ const getProjectsByOrganizationId = async (organizationId) => {
   return rows;
 };
 
-export { getUpcomingProjects, getProjectDetails, getProjectsByOrganizationId };
+/**
+ * Creates a new project in the database.
+ * @param {string} title - The title of the project.
+ * @param {string} description - A description of the project.
+ * @param {string} location - The location of the project.
+ * @param {string} date - The date of the project.
+ * @param {number|string} organizationId - The ID of the associated organization.
+ * @returns {number|string} The ID of the newly created project.
+ */
+const createProject = async (title, description, location, date, organizationId) => {
+  const query = `
+    INSERT INTO project (title, description, project_location, project_date, organization_id)
+    VALUES ($1, $2, $3, $4, $5)
+    RETURNING project_id;
+  `;
+  const queryParams = [title, description, location, date, organizationId];
+  const { rows } = await pool.query(query, queryParams);
+
+  if (rows.length === 0) {
+    throw new Error('Failed to create project');
+  }
+
+  return rows[0].project_id;
+};
+
+/**
+ * Updates an existing service project in the database using parameterized queries.
+ * @param {number|string} projectId - The ID of the project to update.
+ * @param {string} title - The title of the project.
+ * @param {string} description - The description of the project.
+ * @param {string} location - The location of the project.
+ * @param {string} date - The date of the project.
+ * @param {number|string} organizationId - The ID of the associated organization.
+ * @returns {Object} The updated project record.
+ */
+const updateProject = async (projectId, title, description, location, date, organizationId) => {
+  const query = `
+    UPDATE project
+    SET title = $1,
+        description = $2,
+        project_location = $3,
+        project_date = $4,
+        organization_id = $5
+    WHERE project_id = $6
+    RETURNING *;
+  `;
+  const queryParams = [title, description, location, date, organizationId, projectId];
+  const { rows } = await pool.query(query, queryParams);
+
+  if (rows.length === 0) {
+    throw new Error('Project not found or update failed');
+  }
+
+  return rows[0];
+};
+
+export { 
+  getUpcomingProjects, 
+  getProjectDetails, 
+  getProjectsByOrganizationId,
+  createProject,
+  updateProject
+};

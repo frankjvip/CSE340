@@ -12,6 +12,9 @@
         <p><%= organizationDetails.description %></p>
         <p><strong>Contact:</strong> <%= organizationDetails.contact_email %></p>
 
+        <!-- Edit Organization Link -->
+        <p><a href="/edit-organization/<%= organizationDetails.organization_id %>">Edit Organization</a></p>
+
         <h3>Service Projects</h3>
 
         <% if (projects.length > 0) { %>

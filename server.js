@@ -1,4 +1,6 @@
 import express from 'express';
+import session from 'express-session';
+import flash from './src/middleware/flash.js';
 import { fileURLToPath } from 'url';
 import path from 'path';
 import { testConnection } from './src/models/db.js';
@@ -6,11 +8,35 @@ import router from './src/routes.js';
 
 const NODE_ENV = process.env.NODE_ENV?.toLowerCase() || 'production';
 const PORT = process.env.PORT || 3000;
+const SESSION_SECRET = process.env.SESSION_SECRET;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+
+/**
+ * SESSION MANAGEMENT
+ */
+app.use(session({
+    secret: SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true,
+    cookie: { maxAge: 60 * 60 * 1000 } // Session expires after 1 hour of inactivity
+}));
+
+/**
+ * FLASH MESSAGES MIDDLEWARE
+ */
+app.use(flash);
+
+/**
+ * BODY PARSER MIDDLEWARE
+ * Allows Express to receive and process form data (POST) and JSON.
+ * Must be added before static files and routes.
+ */
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 /**
  * STATIC FILES
