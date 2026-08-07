@@ -1,9 +1,11 @@
-    <footer>
+<footer>
         <p>&copy; <%= new Date().getFullYear() %> CSE 340 Service Network.
-        <% if (NODE_ENV === 'development') { %>
+        <% 
+            const currentEnv = typeof NODE_ENV !== 'undefined' ? NODE_ENV : (typeof locals.NODE_ENV !== 'undefined' ? locals.NODE_ENV : 'production');
+        %>
+        <% if (currentEnv === 'development') { %>
             (Development mode)
         <% } %>
-        
         </p>
     </footer>
 </body>

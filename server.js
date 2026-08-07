@@ -31,10 +31,11 @@ app.use(session({
 app.use(flash);
 
 /**
- * MAKE FLASH ACCESSIBLE IN ALL EJS TEMPLATES
+ * MAKE FLASH & GLOBALS ACCESSIBLE IN ALL EJS TEMPLATES
  */
 app.use((req, res, next) => {
-    res.locals.flash = req.flash ? req.flash.bind(req) : () => [];
+    res.locals.flash = req.flash ? req.flash.bind(req) : () => ({});
+    res.locals.NODE_ENV = NODE_ENV;
     next();
 });
 
@@ -71,14 +72,6 @@ app.use((req, res, next) => {
 });
 
 /**
- * ENV AVAILABLE TO TEMPLATES
- */
-app.use((req, res, next) => {
-    res.locals.NODE_ENV = NODE_ENV;
-    next();
-});
-
-/**
  * ROUTES
  */
 app.use(router);
@@ -105,7 +98,8 @@ app.use((err, req, res, next) => {
     res.status(status).render(`errors/${template}`, {
         title: status === 404 ? 'Page Not Found' : 'Server Error',
         error: err.message,
-        stack: err.stack
+        stack: err.stack,
+        NODE_ENV: NODE_ENV
     });
 });
 
