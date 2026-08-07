@@ -11,7 +11,6 @@ import {
 import { getProjectDetails } from '../models/projects.js';
 
 // Server-side validation rules for categories
-// Note: Min length is 3 characters (server-side only to satisfy testing requirements)
 const categoryValidation = [
   body('name')
     .trim()
@@ -24,44 +23,46 @@ const categoryValidation = [
 ];
 
 // Controller: show all categories
-const showCategoriesPage = async (req, res) => {
+const showCategoriesPage = async (req, res, next) => {
   try {
     const categories = await getAllCategories();
     const title = 'Service Categories';
     res.render('categories', { title, categories });
   } catch (error) {
-    console.error(error);
-    res.status(500).render('500');
+    next(error);
   }
 };
 
 // Controller: show category details page
-const showCategoryDetailsPage = async (req, res) => {
+const showCategoryDetailsPage = async (req, res, next) => {
   try {
     const categoryId = req.params.id;
     const category = await getCategoryById(categoryId);
     const projects = await getProjectsByCategoryId(categoryId);
 
     if (!category) {
-      return res.status(404).render('404');
+      const err = new Error('Category Not Found');
+      err.status = 404;
+      return next(err);
     }
 
     const title = `Category: ${category.name}`;
     res.render('category', { title, category, projects });
   } catch (error) {
-    console.error(error);
-    res.status(500).render('500');
+    next(error);
   }
 };
 
 // Controller: show assign categories form
-const showAssignCategoriesForm = async (req, res) => {
+const showAssignCategoriesForm = async (req, res, next) => {
   try {
     const projectId = req.params.projectId;
     const project = await getProjectDetails(projectId);
 
     if (!project) {
-      return res.status(404).render('404');
+      const err = new Error('Project Not Found');
+      err.status = 404;
+      return next(err);
     }
 
     const allCategories = await getAllCategories();
@@ -75,13 +76,12 @@ const showAssignCategoriesForm = async (req, res) => {
       assignedCategories
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).render('500');
+    next(error);
   }
 };
 
 // Controller: process assign categories form submission
-const processAssignCategoriesForm = async (req, res) => {
+const processAssignCategoriesForm = async (req, res, next) => {
   try {
     const projectId = req.params.projectId;
     const categoryIds = req.body.categoryIds || [];
@@ -107,7 +107,7 @@ const showNewCategoryForm = (req, res) => {
 };
 
 // Controller: process creation of new category
-const processNewCategoryForm = async (req, res) => {
+const processNewCategoryForm = async (req, res, next) => {
   const errors = validationResult(req);
   const { name } = req.body;
 
@@ -124,19 +124,20 @@ const processNewCategoryForm = async (req, res) => {
     req.flash('info', 'Category created successfully.');
     res.redirect('/categories');
   } catch (error) {
-    console.error(error);
-    res.status(500).render('500');
+    next(error);
   }
 };
 
 // Controller: render form to edit category
-const showEditCategoryForm = async (req, res) => {
+const showEditCategoryForm = async (req, res, next) => {
   try {
     const categoryId = req.params.id;
     const category = await getCategoryById(categoryId);
 
     if (!category) {
-      return res.status(404).render('404');
+      const err = new Error('Category Not Found');
+      err.status = 404;
+      return next(err);
     }
 
     res.render('edit-category', {
@@ -145,13 +146,12 @@ const showEditCategoryForm = async (req, res) => {
       category
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).render('500');
+    next(error);
   }
 };
 
 // Controller: process updating an existing category
-const processEditCategoryForm = async (req, res) => {
+const processEditCategoryForm = async (req, res, next) => {
   const errors = validationResult(req);
   const categoryId = req.params.id;
   const { name } = req.body;
@@ -169,8 +169,7 @@ const processEditCategoryForm = async (req, res) => {
     req.flash('info', 'Category updated successfully.');
     res.redirect('/categories');
   } catch (error) {
-    console.error(error);
-    res.status(500).render('500');
+    next(error);
   }
 };
 
