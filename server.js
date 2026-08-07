@@ -31,6 +31,14 @@ app.use(session({
 app.use(flash);
 
 /**
+ * MAKE FLASH ACCESSIBLE IN ALL EJS TEMPLATES
+ */
+app.use((req, res, next) => {
+    res.locals.flash = req.flash ? req.flash.bind(req) : () => [];
+    next();
+});
+
+/**
  * BODY PARSER MIDDLEWARE
  * Allows Express to receive and process form data (POST) and JSON.
  * Must be added before static files and routes.
